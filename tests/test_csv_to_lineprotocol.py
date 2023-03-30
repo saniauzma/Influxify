@@ -5,7 +5,7 @@ from io import StringIO
 import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from src.csv_to_lineprotocol.main import CsvToInfluxDb
+from src.influxify.main import CsvToInfluxDb
 from pandas.testing import assert_frame_equal
 
 class TestCsvToInfluxDb(unittest.TestCase):
