@@ -1,6 +1,6 @@
 import pandas as pd
 
-class CsvToInfluxDb:
+class InfluxConverter:
     """A class that converts a CSV file to InfluxDB Line Protocol format.
 
     Attributes:
@@ -12,7 +12,7 @@ class CsvToInfluxDb:
         timestamp_format (str): The format string of the timestamp column, e.g. '%Y-%m-%d %H:%M:%S'.
 
     """
-    def __init__(self, csv_file_path, measurement, tag_columns, field_columns, timestamp_col, timestamp_format=None):
+    def __init__(self, csv_file_path : str, measurement : str, tag_columns : list[str], field_columns : list[str], timestamp_col : str, timestamp_format : str | None = None):
         self.csv_file_path = csv_file_path
         self.measurement = measurement
         self.tag_columns = tag_columns
@@ -20,7 +20,7 @@ class CsvToInfluxDb:
         self.timestamp_format = timestamp_format
         self.timestamp_col = timestamp_col
 
-    def convert_to_lineprotocol(self):
+    def convert_csv_to_lineprotocol(self):
         """Convert the CSV file to InfluxDB Line Protocol format.
 
         Returns:
@@ -32,7 +32,7 @@ class CsvToInfluxDb:
         
         df = df.replace(float('nan'), '')
         
-        df[self.timestamp_col] = pd.to_datetime(df[self.timestamp_col], format=self.timestamp_format).astype(int) // 10**9 * 10**9
+        df[self.timestamp_col] = pd.to_datetime(df[self.timestamp_col], format='mixed').astype('int64') // 10**9 * 10**9
 
 
         df[self.tag_columns] = df[self.tag_columns].replace(' ', '\ ', regex=True)
@@ -46,15 +46,19 @@ class CsvToInfluxDb:
         
         return  line_protocols
     
-    def write_to_lineprotocol(self, filepath, line_protocols):
-        """Write the Line Protocol to a file.
+    def write_to_lp_file(self, filepath : str, line_protocols : str):
+        """Write the Line Protocol to a (.lp) file.
 
         Args:
             filepath (str): The file path of the output file.
             line_protocols (str): The Line Protocol to write.
 
         """
-        with open(filepath, 'w+') as f:
+
+        try:
+            with open(filepath, 'w+') as f:
                 f.write(line_protocols)
+        except IOError as e:
+            print(f"Error writing to file: {e}")
 
     
